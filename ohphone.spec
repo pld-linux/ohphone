@@ -15,6 +15,7 @@ BuildRequires:	SDL-devel
 BuildRequires:	XFree86-devel
 BuildRequires:	openh323-devel >= 1.13.4-3
 BuildRequires:	pwlib-devel >= 1.6.5-3
+BuildRequires:	speex-devel
 %requires_eq	openh323
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
