@@ -1,4 +1,4 @@
-Summary:	initiate, or receive, a H.323 IP telephony call
+Summary:	Initiate, or receive, a H.323 IP telephony call
 Summary(pl):	Inicjowanie i odbieranie po³±czeñ telefonicznych H.323
 Name:		ohphone
 Version:	1.3.7
