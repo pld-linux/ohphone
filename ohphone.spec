@@ -10,7 +10,6 @@ Patch0:		%{name}-mak_files.patch
 Patch1:		%{name}-novga.patch
 URL:		http://www.openh323.org/
 BuildRequires:	openh323-devel >= 1.10.0
-BuildRequires:	pwlib-devel
 BuildRequires:	XFree86-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %requires_eq	openh323
