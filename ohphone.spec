@@ -1,21 +1,21 @@
 Summary:	Initiate, or receive, a H.323 IP telephony call
 Summary(pl):	Inicjowanie i odbieranie po³±czeñ telefonicznych H.323
 Name:		ohphone
-Version:	1.13.4
+Version:	1.13.5
 %define fver	%(echo %{version} | tr . _)
-Release:	2
+Release:	1
 License:	MPL 1.0
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/openh323/%{name}-v%{fver}-src.tar.gz
-# Source0-md5:	3abb116e900e101fe3d46b8833e86102
-Patch0:		%{name}-mak_files.patch
-Patch1:		%{name}-novga.patch
+# Source0-md5:	755677eb1e6196b6d5e5b4560232dc1f
+Patch0:		%{name}-cvs.patch
+Patch1:		%{name}-mak_files.patch
+Patch2:		%{name}-novga.patch
 URL:		http://www.openh323.org/
 BuildRequires:	SDL-devel
 BuildRequires:	XFree86-devel
-BuildRequires:	openh323-devel >= 1.13.4-3
-BuildRequires:	pwlib-devel >= 1.6.5-3
-BuildRequires:	speex-devel
+BuildRequires:	openh323-devel >= 1.15
+BuildRequires:	pwlib-devel >= 1.8
 %requires_eq	openh323
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -37,10 +37,12 @@ pe³nej funkcjonalno¶ci.
 %setup -qn %{name}
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
 %{__make} %{?debug:debugshared}%{!?debug:optshared} \
-	OPTCCFLAGS="%{rpmcflags} -fno-rtti -fno-exceptions" \
+	CXX="%{__cxx}" \
+	OPTCCFLAGS="%{rpmcflags} -fno-exceptions" \
 	XLIBDIR="/usr/X11R6/%{_lib}"
 
 %install
