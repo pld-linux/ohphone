@@ -1,0 +1,1263 @@
+diff -Nur ohphone-1.13.5/main.cxx ohphone/main.cxx
+--- ohphone-1.13.5/main.cxx	2004-01-18 15:19:03.000000000 +0100
++++ ohphone/main.cxx	2005-01-11 08:56:45.000000000 +0100
+@@ -29,6 +29,71 @@
+  *                 Walter H Whitlock (twohives@nc.rr.com)
+  *
+  * $Log$
++ * Revision 1.343  2005/01/11 07:56:45  csoutheren
++ * Added --number-prefix option
++ * Fixed problem with using proxies
++ *
++ * Revision 1.342  2004/12/16 00:46:52  csoutheren
++ * Added osptoken option
++ *
++ * Revision 1.341  2004/12/15 06:04:51  csoutheren
++ * Added outgoing OSP capability
++ *
++ * Revision 1.340  2004/11/25 07:40:42  csoutheren
++ * Allow port range to be set before STUN is set, allowing STUN to use a specific port range
++ *
++ * Revision 1.339  2004/11/22 02:57:53  csoutheren
++ * Rationalised sound device driver options (again)
++ *
++ * Revision 1.338  2004/11/04 22:20:28  csoutheren
++ * Fixed incorrect handling of sound drivers
++ *
++ * Revision 1.337  2004/11/01 22:21:53  ykiryanov
++ * Removed hack with inclusion of be.inc. BeOS now has gcc 2.95.3 available,
++ * and code built with 2.95.3 has plugins problem gone. Please use gcc 2.95.3
++ *
++ * Revision 1.336  2004/08/19 22:16:49  dereksmithies
++ * Set payload type for video test when using rfc2190_h263 capability.
++ * Thanks to Srinivas.Kandagatla for your help here.....
++ *
++ * Revision 1.335  2004/07/13 01:57:20  csoutheren
++ * Disabled RFC 2190 H.263 if DLL not available
++ *
++ * Revision 1.334  2004/06/16 06:32:52  ykiryanov
++ * Included be.inc - media registration code. Cannot be anywhere else (sigh)
++ *
++ * Revision 1.333  2004/06/02 00:40:46  csoutheren
++ * Changed g711frames to work in msecs
++ *
++ * Revision 1.332  2004/06/02 00:27:28  csoutheren
++ * Added options to set frames per packet for any codec
++ *
++ * Revision 1.331  2004/05/31 10:53:42  rjongbloed
++ * Fixed missing quote in list of codec names.
++ *
++ * Revision 1.330  2004/05/28 23:38:58  csoutheren
++ * Added --no-h263 and --no-h261 options as shorthand to remove video codecs
++ *
++ * Revision 1.329  2004/05/27 23:33:12  csoutheren
++ * Checked in fixes for new plugin codecs and RFC 2190 H.263
++ *
++ * Revision 1.328  2004/05/10 13:07:18  rjongbloed
++ * Changed G.726 and MS-ADPCM to plug in codecs.
++ *
++ * Revision 1.327  2004/05/04 12:21:15  rjongbloed
++ * Converted LPC-10 codec to plug in.
++ *
++ * Revision 1.326  2004/05/03 13:25:46  rjongbloed
++ * Converted everything to be codec plug in freindly
++ * Removed GSM and G.729 as now plug ins are "the way"!
++ *
++ * Revision 1.325  2004/04/22 14:45:26  csoutheren
++ * Added changes for RFC2190 H.263
++ *
++ * Revision 1.324  2004/04/06 11:27:48  rjongbloed
++ * Changes to support native C++ Run Time Type Information
++ * Changes for codec plug ins
++ *
+  * Revision 1.323  2004/01/18 14:19:03  dereksmithies
+  * Opening of video devices with plugins works now.
+  *
+@@ -105,409 +170,6 @@
+  * Revision 1.300  2003/03/21 04:21:30  robertj
+  * Fixed missing set of colour format in video output device.
+  *
+- * Revision 1.299  2003/03/20 23:49:14  dereks
+- * Improve formatting.
+- *
+- * Revision 1.298  2003/03/17 10:07:20  robertj
+- * Removed openh323 versions of videoio.h classes as PVideoOutputDevice
+- *   descendants for NULL and PPM files added to PWLib.
+- * Moved window PVideoOutputDevice descendant to PWlib.
+- *
+- * Revision 1.297  2003/03/12 23:14:49  rogerh
+- * Changes to Mac OS X scheduling.
+- * Move Speex mode 2 codec to the end of the list (as it is poor quality).
+- * Changes to console to ignore new lines.
+- *
+- * Revision 1.296  2003/03/05 20:29:21  rogerh
+- * Enable realtime priority on Mac OS X. Submitted by Shawn.
+- *
+- * Revision 1.295  2003/02/28 08:48:44  rogerh
+- * Change the few instances of cerr to cout. This helps Shawn's Mac OS X
+- * XMeeting application (Approved by Robert).
+- *
+- * Revision 1.294  2003/02/25 03:49:09  dereks
+- * Fix spelling error.
+- *
+- * Revision 1.293  2003/02/18 03:58:55  dereks
+- * IEEE1394 AVC patch from Georgi Georgiev. Thanks!
+- *
+- * Revision 1.292  2003/01/11 05:35:43  robertj
+- * Added support for IEEE 1394 AV/C cameras, thanks Georgi Georgiev
+- *
+- * Revision 1.291  2003/01/06 21:23:54  rogerh
+- * Add NetBSD changes
+- * Submitted by Andreas Wrede (taken in part from NetBSD's package system)
+- *
+- * Revision 1.290  2002/12/16 09:27:38  robertj
+- * Added new video bit rate control, thanks Walter H. Whitlock
+- *
+- * Revision 1.289  2002/11/13 10:18:03  rogerh
+- * Speex is included by default. So remove the HAS_SPEEX test.
+- *
+- * Revision 1.288  2002/11/10 08:12:42  robertj
+- * Moved constants for "well known" ports to better place (OPAL change).
+- *
+- * Revision 1.287  2002/11/05 04:54:48  robertj
+- * Fixed test for jitter buffer size adjustment
+- *
+- * Revision 1.286  2002/10/31 00:54:13  robertj
+- * Enhanced jitter buffer system so operates dynamically between minimum and
+- *   maximum values. Altered API to assure app writers note the change!
+- *
+- * Revision 1.285  2002/10/25 01:58:21  dereks
+- * Tidy up capability setting for Cu30
+- *
+- * Revision 1.284  2002/10/23 17:55:01  rogerh
+- * Check for all RFC1918 private IP addresses in the NAT transslation code
+- *
+- * Revision 1.283  2002/10/15 10:46:43  rogerh
+- * Add tweak by Sahai to support operation behind a NAT that forwards ports.
+- * This uses TranslateTCPAddress to change the address reported to connections
+- * that occur from outside the 192.x.x.x subnet. Copied from OpenMCU.
+- *
+- * Revision 1.282  2002/09/16 23:43:37  robertj
+- * Fixed typo in setting user input capabilities, thanks Simon Heron
+- *
+- * Revision 1.281  2002/08/29 00:22:27  craigs
+- * Fixed cut and past error PR#78, thanks to zbyszek@mazurkiewicz.org
+- *
+- * Revision 1.280  2002/08/15 02:30:39  craigs
+- * Added G726 codec capabilities
+- *
+- * Revision 1.279  2002/08/14 04:24:16  craigs
+- * Added Speex codecs
+- *
+- * Revision 1.278  2002/08/07 00:46:42  dereks
+- * Report statistics for video RTP packets. (No output if no video session)
+- *
+- * Revision 1.277  2002/08/05 01:33:13  robertj
+- * Fixed incorrect override of the SetupTransfer() function that stopped the
+- *   ability to do H.250 call transfer, thanks Vladimir Toncar
+- *
+- * Revision 1.276  2002/07/18 03:04:34  robertj
+- * Use function interface for port setting.
+- *
+- * Revision 1.275  2002/07/16 04:53:57  dereks
+- * Fix type in setting port ranges.
+- *
+- * Revision 1.274  2002/07/04 07:57:30  robertj
+- * Removed the strange #ifdef which prevented OhPhone from using H.235 RAS.
+- *
+- * Revision 1.273  2002/05/30 22:50:28  dereks
+- * All available video input devices are now reported in the trace file, level 1.
+- *
+- * Revision 1.272  2002/05/26 23:28:38  rogerh
+- * Fix videobitrate comment.
+- *
+- * Revision 1.271  2002/05/20 08:49:30  rogerh
+- * Add note that for NetMeeting use --videotxquality 4
+- *
+- * Revision 1.270  2002/05/06 02:55:47  dereks
+- * Fix operation of --autodisconnect n , so works when video enabled.
+- *
+- * Revision 1.269  2002/05/03 05:39:31  robertj
+- * Added Q.931 Keypad IE mechanism for user indications (DTMF).
+- *
+- * Revision 1.268  2002/04/26 03:33:32  dereks
+- * Major upgrade. All calls to SDL library are now done by one thread.
+- *
+- * Revision 1.267  2002/04/18 07:46:28  craigs
+- * Added new functions to remove H245 in SETUP, and to allow removal of
+- * user input indication capabilities
+- *
+- * Revision 1.266  2002/04/05 01:39:56  dereks
+- * Format change of output from TestVideoGrabber routine.
+- *
+- * Revision 1.265  2002/04/05 00:55:02  dereks
+- * Modify TestVideoGrabber so it displays the raw image, and the decoded
+- * form of the encoded raw image. Thanks to Walter Whitlock - good work.
+- *
+- * Revision 1.264  2002/04/01 18:40:30  robertj
+- * Fixed MSVC warnings.
+- *
+- * Revision 1.263  2002/03/27 06:17:28  robertj
+- * Added ability to set base of dynamic TCP/UDP ports, thanks Mark Cooke.
+- *
+- * Revision 1.262  2002/03/14 07:07:58  robertj
+- * Fixed missing new line if call time not printed.
+- *
+- * Revision 1.261  2002/03/05 05:44:48  robertj
+- * Fixed lincorrect message on bandwidth, thanks Ryutaroh Matsumoto
+- *
+- * Revision 1.260  2002/02/27 14:28:45  rogerh
+- * Fix typo in error report. Thanks to Andreas Wrede <awrede@mac.com>
+- *
+- * Revision 1.259  2002/02/25 08:05:32  robertj
+- * Changed to utilise preferred colour format, thanks Martijn Roest
+- *
+- * Revision 1.258  2002/02/21 01:26:38  dereks
+- * With --videotest,  there is now no need to select --videotransmit
+- *
+- * Revision 1.257  2002/02/20 02:41:26  dereks
+- * Remove a PTRACE statement, as it is not needed.
+- *
+- * Revision 1.256  2002/02/20 02:39:37  dereks
+- * Initial release of Firewire camera support for linux.
+- * Many thanks to Ryutaroh Matsumoto <ryutaroh@rmatsumoto.org>.
+- *
+- * Revision 1.255  2002/02/14 22:36:30  robertj
+- * Added display of user input send mode.
+- *
+- * Revision 1.254  2002/01/28 10:43:57  rogerh
+- * Wrap some code with HAS_LIDDEVICE so it compiles on systems without
+- * IxJ and VPBlaster
+- *
+- * Revision 1.253  2002/01/26 00:13:40  robertj
+- * Fixed MSVC warning
+- *
+- * Revision 1.252  2002/01/24 13:19:08  rogerh
+- * Gnomemeeting is using UserInputStrings to send text messages between users.
+- * Strings are sent with a "MSG" header to identify them. Add 'M' menu
+- * option to send text message. Received messages are displayed on screen.
+- *
+- * Revision 1.251  2002/01/24 07:42:37  robertj
+- * Added ability to turn off H.245 negotiations in SETUP option
+- *
+- * Revision 1.250  2002/01/23 14:18:31  rogerh
+- * Allow * and # user input indications from the menu
+- *
+- * Revision 1.249  2002/01/20 23:41:34  craigs
+- * Fix crash if UserInputIndication received when not using LID device
+- *
+- * Revision 1.248  2002/01/18 03:05:59  robertj
+- * Added ability to set the mode for sending user input (DTMF)
+- *
+- * Revision 1.247  2002/01/16 00:47:49  craigs
+- * Changed to remove PCM-based capabilities when device cannot do PCM
+- *
+- * Revision 1.246  2002/01/15 05:50:07  craigs
+- * Added support for VoIPBlaster
+- *
+- * Revision 1.245  2002/01/14 04:43:00  robertj
+- * Added preferred colour format selection, thanks Walter Whitlock (really!)
+- *
+- * Revision 1.244  2002/01/14 03:21:12  robertj
+- * Added ability to set capture caolour format, thanks Walter Whitlock
+- *
+- * Revision 1.243  2002/01/11 03:09:31  robertj
+- * Fixed display of call duration, now only "charged" part of call (from the
+- *    CONNECT pdu) and does not include ringing time.
+- *
+- * Revision 1.242  2002/01/04 04:17:52  dereks
+- * Add code from Walter Whitlock to flip video, and improve the
+- * --videotest mode, which displays local video (without a call).  Many thanks.
+- *
+- * Revision 1.241  2001/12/04 03:03:51  dereks
+- * Copy command line to log file.
+- *
+- * Revision 1.240  2001/11/28 22:55:32  robertj
+- * Fixed setting of silence detect from command line parameter.
+- *
+- * Revision 1.239  2001/11/28 00:11:31  dereks
+- * Update to cope with revised video frame rate code
+- * Additional debug information when run in --videotest mode.
+- *
+- * Revision 1.238  2001/10/27 07:04:46  rogerh
+- * Fix a bug which prevented ohphone exiting after a call in --disable-menu
+- * mode and which prevented autorepeat mode from working.
+- *
+- * Revision 1.237  2001/10/23 02:40:46  dereks
+- * Fix bracket problem in Cu30 release of code.
+- *
+- * Revision 1.236  2001/10/23 02:21:39  dereks
+- * Initial release CU30 video codec.
+- * Add --videotest option, to display raw video, but not invoke a call.
+- *
+- * Revision 1.235  2001/09/25 03:18:09  dereks
+- * Add code from Tiziano Morganti to set bitrate for H261 video codec.
+- * Use --videobitrate n         Thanks for your code - good work!!
+- *
+- * Revision 1.234  2001/09/14 06:02:40  robertj
+- * Added ability for number that does not match a speed dial to be passed
+- *   to the gatekeeper for processing, thanks Chih-Wei Huang
+- *
+- * Revision 1.233  2001/08/24 13:57:37  rogerh
+- * Delete the listener if StartListener() fails.
+- *
+- * Revision 1.232  2001/08/22 01:30:21  robertj
+- * Resolved confusion with YUV411P and YUV420P video formats, thanks Mark Cooke.
+- *
+- * Revision 1.231  2001/08/10 10:06:10  robertj
+- * No longer need SSL to have H.235 security.
+- *
+- * Revision 1.230  2001/08/08 05:09:09  dereks
+- * Add test for presence/absence of SDL if the --videoreceive sdl option is used.
+- * Thanks for the suggestion Greg Hosler
+- * Break up the creation of the video grabber into individual components.
+- * Add PTRACE commands to report on failures.
+- *
+- * Revision 1.229  2001/08/07 05:02:58  robertj
+- * Added command line argument for H.235 gatekeeper password.
+- *
+- * Revision 1.228  2001/07/12 06:25:08  rogerh
+- * create seperate variables for ulaw and alaw codecs
+- *
+- * Revision 1.227  2001/07/06 01:50:10  robertj
+- * Changed memory check code to be conditionally compiled by
+- *   PMEMORY_CHECK and not just _DEBUG.
+- *
+- * Revision 1.226  2001/05/17 07:11:29  robertj
+- * Added more call end types for common transport failure modes.
+- *
+- * Revision 1.225  2001/05/10 23:47:45  robertj
+- * Added trim to transfer command so can have leading spaces.
+- *
+- * Revision 1.224  2001/05/09 04:59:02  robertj
+- * Bug fixes in H.450.2, thanks Klein Stefan.
+- *
+- * Revision 1.223  2001/05/09 04:07:53  robertj
+- * Added more call end codes for busy and congested.
+- *
+- * Revision 1.222  2001/05/02 16:30:35  rogerh
+- * Tidy up comments
+- *
+- * Revision 1.221  2001/05/01 17:07:32  rogerh
+- * Allow CIF images to be transmitted by ordering the capabilities correctly
+- * The previous re-ordering code did not work as the codec names had changed
+- *
+- * Revision 1.220  2001/05/01 05:00:38  robertj
+- * Added command to do H.450.x call transfer and hold functions.
+- *
+- * Revision 1.219  2001/03/20 23:42:55  robertj
+- * Used the new PTrace::Initialise function for starting trace code.
+- *
+- * Revision 1.218  2001/03/12 03:52:09  dereks
+- * Tidy up fake video user interface. use --videodevice fake now.
+- *
+- * Revision 1.217  2001/03/08 23:53:26  robertj
+- * Changed the fake video test pattern numbers from -1, -2, -3 to 0, 1 & 2 due
+- *   to -1 now being a default channel value for all video devices.
+- *
+- * Revision 1.216  2001/03/07 01:47:45  dereks
+- * Initial release of SDL (Simple DirectMedia Layer, a cross-platform multimedia library),
+- * a video library code.
+- *
+- * Revision 1.215  2001/03/03 05:59:16  robertj
+- * Major upgrade of video conversion and grabbing classes.
+- *
+- * Revision 1.214  2001/02/23 00:34:44  robertj
+- * Added ability to add/display non-standard data in setup PDU.
+- *
+- * Revision 1.213  2001/02/06 07:44:20  robertj
+- * Removed ACM codecs.
+- *
+- * Revision 1.212  2001/01/25 07:16:28  robertj
+- * Fixed spurious memory leak. It is OK for the trace file to never be deleted.
+- *
+- * Revision 1.211  2001/01/24 06:25:46  robertj
+- * Altered volume control range to be percentage, ie 100 is max volume.
+- *
+- * Revision 1.210  2001/01/18 12:24:19  rogerh
+- * Fix bug which prevented lookback being selected on OSs without IXJ (eg BSD)
+- *
+- * Revision 1.209  2001/01/16 13:52:19  rogerh
+- * Fix bug when reordering or deleting codecs. Found by "gnome" <gnome@21cn.com>
+- *
+- * Revision 1.208  2001/01/09 02:09:11  craigs
+- * Added extra logging
+- * Fixed problem with autodisconnect mode
+- *
+- * Revision 1.207  2001/01/05 14:55:53  rogerh
+- * remove a warning from non ixj systems
+- *
+- * Revision 1.206  2000/12/19 22:35:53  dereks
+- * Install revised video handling code, so that a video channel is used.
+- * Code now better handles the situation where the video grabber could not be opened.
+- *
+- * Revision 1.205  2000/12/16 21:54:31  eokerson
+- * Added DTMF generation when User Input Indication received.
+- *
+- * Revision 1.204  2000/11/13 22:31:38  craigs
+- * Fixed per connection options
+- *
+- * Revision 1.203  2000/11/10 04:09:43  craigs
+- * Changed to display AEC settings as text
+- * Fixed improved CIDCW support
+- * Removed misleading G728 defines
+- *
+- * Revision 1.202  2000/11/06 02:10:50  eokerson
+- * Added support for AGC on IXJ devices.
+- *
+- * Revision 1.201  2000/10/26 21:29:20  dereks
+- * Add --gsmframes parameter, for setting the number of gsmframes in one ethernet packet.
+- * Default value is 4. Lower audio latency can be achieved with a value of 1
+- *
+- * Revision 1.200  2000/10/22 20:27:39  rogerh
+- * Add more HAVE_IXJ #ifdefs to make code build on non-linux systems (eg FreeBSD)
+- * Submittd by Blaz Zupan <blaz@amis.net>
+- *
+- * Revision 1.199  2000/10/16 08:50:12  robertj
+- * Added single function to add all UserInput capability types.
+- *
+- * Revision 1.198  2000/10/13 01:47:59  dereks
+- * Include command line option for setting the number of transmitted video
+- * frames per second.   use --videotxfps n  (default n is 10)
+- *
+- * Revision 1.197  2000/09/29 00:07:38  craigs
+- * Added G711 frame size options
+- *
+- * Revision 1.196  2000/09/27 03:06:13  dereks
+- * Added lots of PTRACE statements to xlib code.
+- * Removed X videoMutex from main.cxx & main.h
+- * Removed some weird display issues from X code.
+- *
+- * Revision 1.195  2000/09/24 23:30:18  craigs
+- * Removed debugging messages
+- *
+- * Revision 1.194  2000/09/23 07:20:49  robertj
+- * Fixed problem with being able to distinguish between sw and hw codecs in LID channel.
+- *
+- * Revision 1.193  2000/09/22 01:35:55  robertj
+- * Added support for handling LID's that only do symmetric codecs.
+- *
+- * Revision 1.192  2000/09/22 01:30:14  robertj
+- * MSVC compatibility.
+- *
+- * Revision 1.191  2000/09/22 00:30:52  craigs
+- * Enhanced autoDisconnect and autoRepeat functions
+- *
+- * Revision 1.190  2000/09/21 00:42:50  craigs
+- * Changed play volume on sound cards to use PCM mixer channel
+- *
+- * Revision 1.189  2000/09/20 21:27:01  craigs
+- * Fixed problem with default connection options
+- *
+- * Revision 1.188  2000/09/13 23:58:11  dereks
+- * Corrected bug in video display. Now correctly handles 8, 16, 32 bit colour
+- * Correctly handles 8 bit grayscale.
+- *
+- * Revision 1.187  2000/09/08 06:50:06  craigs
+- * Added ability to set per-speed dial options
+- * Fixed problem with transmit-only endpoints
+- *
+- * Revision 1.186  2000/09/01 02:13:08  robertj
+- * Added ability to select a gatekeeper on LAN via it's identifier name.
+- *
+- * Revision 1.185  2000/08/30 23:43:27  robertj
+- * Added -C option to set IXJ country code.
+- * Added -c option for caller id, was documented in help but only had long version.
+- *
+- * Revision 1.184  2000/08/30 23:21:20  robertj
+- * Fixed MSVC warnings.
+- *
+- * Revision 1.183  2000/08/30 05:14:49  craigs
+- * Really fixed problem with setting quicknet volumes on startup
+- *
+- * Revision 1.182  2000/08/30 04:55:11  craigs
+- * Added ability to bind to discrete interfaces
+- * Fixed problem with initial audio settings
+- *
+- * Revision 1.181  2000/08/30 04:16:50  robertj
+- * Fixed MSVC warning.
+- *
+- * Revision 1.180  2000/08/30 01:52:53  craigs
+- * New IXJ volume code with pseudo-log scaling
+- *
+  * history deleted
+  *
+  * Revision 1.1  1998/12/14 09:13:19  robertj
+@@ -519,18 +181,19 @@
+ #include <ptclib/random.h>
+ 
+ #include "main.h"
+-#include "gsmcodec.h"
+-#include "lpc10codec.h"
+-#include "mscodecs.h"
+-#include <speexcodec.h>
+ #include "h261codec.h"
+ #include "h263codec.h"
++#if H323_AVCODEC
+ #include "ffh263codec.h"
++#endif
++#if H323_RFC2190_AVCODEC
++#include "rfc2190avcodec.h"
++#endif
+ #include "h323pdu.h"
+-#include "g726codec.h"
+ //#include "h323t120.h"
+ //#include "t120proto.h"
+ 
++
+ #ifdef DEPRECATED_CU30
+ #include "cu30codec.h"
+ #endif
+@@ -583,15 +246,16 @@
+ 
+ #endif // HAS OSS
+ 
+-// uncomment below if to include xJack G729 code
+-#ifdef _WIN32
+-#define  G729
+-#endif
+-
+ #ifdef HAS_LIDDEVICE
+ static const char * AECLevelNames[] = { "Off", "Low", "Medium", "High", "Auto AEC", "Auto AEC/AGC" };
+ #endif
+ 
++#define HAS_T38
++
++#ifdef HAS_T38
++#include <h323t38.h>
++#endif
++
+ #include "version.h"
+ 
+ PCREATE_PROCESS(OhPhone);
+@@ -619,7 +283,6 @@
+ 
+ #define new PNEW
+ 
+-
+ ///////////////////////////////////////////////////////////////
+ 
+ OhPhone::OhPhone()
+@@ -661,6 +324,7 @@
+              "l-listen."
+              "n-no-gatekeeper."
+              "N-forward-no-answer:"  "-no-forward-no-answer."
++             "-number-prefix:"       "-no-number-prefix."
+              "-answer-timeout:"      "-no-answer-timeout."
+ #if PTRACING
+              "o-output:"             "-no-output."
+@@ -693,7 +357,11 @@
+              "-sound-recvol:"        "-no-sound-recvol."
+              "-sound-playvol:"       "-no-sound-playvol."
+ #endif
++             "-sound-driver:"        "-no-sound-driver." 
++             "-record-driver:"       "-no-record-driver."
++             "-play-driver:"         "-no-play-driver." 
+ 			       "-soundtest."           "-no-soundtest."
++
+ #ifdef PMEMORY_CHECK
+              "-setallocationbreakpoint:"
+ #endif
+@@ -722,6 +390,7 @@
+ #ifdef  G729
+              "-g729."                "-no-g729."
+ #endif
++             "-fpp:-frames-per-packet:" 
+              "-gsm."                 "-no-gsm."
+              "-gsmframes:"           "-no-gsmframes."
+              "-g711-ulaw."           "-no-g711-ulaw."
+@@ -763,6 +432,12 @@
+              "-portbase:"
+              "-portmax:"
+ 
++#ifdef H323_TRANSNEXUS_OSP
++             "-osp:"
++             "-ospdir:"
++#endif
++             "-osptoken."
++
+           , FALSE);
+ 
+ #if PMEMORY_CHECK
+@@ -810,6 +485,7 @@
+             "  -r --require-gatekeeper : Exit if gatekeeper discovery fails.\n"
+             "     --password pwd       : Password for gatekeeper H.235 authentication.\n"
+             "  -p --proxy host         : Proxy/Gateway hostname/ip address\n"
++            "  --osptoken              : Copy OSP tokens (if present) from ACF to SETUP\n"
+ 
+             "\nDivert options:\n"
+             "  -F --forward-always party    : Forward to remote party.\n"
+@@ -834,6 +510,11 @@
+             "  --portmax port          : Maximum port for H.245 and RTP data\n"
+             "  --translate ip          : Set external IP address to ip if masQueraded\n"
+             "  --stun ip               : Set STUN server at ip"
++#ifdef H323_TRANSNEXUS_OSP
++            "  --osp server            : Use OSP server for number resolution (disable GK if selected).\n"
++            "  --ospdir dir            : Directory in which OSP certs are stored\n"
++#endif
++
+ 
+             "\nAudio options:\n"
+             "  -e --silence            : Disable silence detection for GSM and software G.711\n"
+@@ -893,7 +574,7 @@
+             "  --sound-in device       : Select sound card input device (overrides --sound)\n"
+             "  --sound-out device      : Select sound card output device (overrides --sound)\n"
+             "  --sound-buffers n       : Set sound buffer depth (default=2)\n"
+-			"  --soundtest             : Test that the sound card works in full duplex mode\n"
++            "  --soundtest             : Test that the sound card works in full duplex mode\n"
+ 
+ #ifdef HAS_OSS
+             "  --sound-mixer device    : Select sound mixer device (default is " DEFAULT_MIXER ")\n"
+@@ -923,8 +604,9 @@
+             "\nAudio Codec options:\n"
+             "  -D --disable codec      : Disable the specified codec (may be used multiple times)\n"
+             "  -P --prefer codec       : Prefer the specified codec (may be used multiple times)\n"
+-            "  --g711frames count      : Set the number G.711 frames in capabilities (default 30)\n"
+-            "  --gsmframes count       : Set the number GSM frames in capabilities (default 4)\n"
++            "  --fpp codec=count       : Set frames per packet, e.g. '--fpp GSM06.10=3' (may be used multiple times)\n"
++            "  --g711frames count      : (deprecated) Set the number G.711 frames in capabilities (default 30)\n"
++            "  --gsmframes count       : (deprecated) Set the number GSM frames in capabilities (default 4)\n"
+ 
+ #if defined(HAS_LIDDEVICE)
+             "  --g7231                 : Set G.723.1 as preferred codec\n"
+@@ -997,7 +679,8 @@
+             cout << "Making automatic call " << i << endl;
+             endpoint->MakeOutgoingCall(args[0], args.GetOptionString('p'));
+           }
+-          endpoint->AwaitTermination();
++          //endpoint->AwaitTermination();
++          Sleep(20);
+ 
+           cout << "Call #" << i;
+ #ifdef P_LINUX
+@@ -1034,6 +717,19 @@
+ 
+ ///////////////////////////////////////////////////////////////
+ 
++void MyH323EndPoint::SetCodecFrames(const PString & fmt, unsigned frames)
++{
++  H323Capability * cap = capabilities.FindCapability(fmt);
++  if (cap == NULL) {
++    cout << "Cannot find codec " << fmt << endl;
++  }
++  else if (frames < 1)
++    cout << "Cannot set frames per packet for code " << *cap << " to 0" << endl;
++  else {
++    cout << "Setting frames per packet for " << *cap << " to " << frames << endl;
++    cap->SetTxFramesInPacket(frames);
++  }
++}
+ 
+ BOOL MyH323EndPoint::Initialise(PConfigArgs & args, int _verbose, BOOL _hasMenu)
+ {
+@@ -1060,11 +756,7 @@
+       AddAliasName(aliases[i]);
+   }
+ 
+-  if (args.HasOption("stun")) {
+-    SetSTUNServer(args.GetOptionString("stun"));
+-  }
+-
+-  // Let the user override it
++  // Let the user set port ranges
+   if (args.HasOption("portbase")) {
+     SetRtpIpPorts(args.GetOptionString("portbase").AsInteger(),
+                   args.GetOptionString("portmax").AsInteger());
+@@ -1074,6 +766,10 @@
+                 args.GetOptionString("portmax").AsInteger());
+   }
+   
++  if (args.HasOption("stun")) {
++    SetSTUNServer(args.GetOptionString("stun"));
++  }
++
+   if (verbose >= 3)
+     cout << "Incoming channel port ranges " << GetRtpIpPortBase() << " to " << GetRtpIpPortMax()<<endl;
+   
+@@ -1125,8 +821,11 @@
+     }
+   }
+ 
++  numberPrefix = args.GetOptionString("number-prefix");
++  proxy        = args.GetOptionString('p');
++
+   if (args.HasOption("sound-buffers")) {
+-    soundChannelBuffers = args.GetOptionString("sound-buffers", "2").AsUnsigned();
++    soundChannelBuffers = args.GetOptionString("sound-buffers", "3").AsUnsigned();
+     if (soundChannelBuffers < 2 || soundChannelBuffers > 99) {
+       cout << "Illegal sound buffers specified." << endl;
+       return FALSE;
+@@ -1442,13 +1141,15 @@
+   if ((lidDevice == NULL) || !lidDevice->IsOpen()) {
+ #endif
+ 
+-    if (!SetSoundDevice(args, "sound", PSoundChannel::Recorder))
++    if (
++        !SetSoundDevice(args, "sound-in", "record-driver", PSoundChannel::Recorder) && 
++        !SetSoundDevice(args, "sound",    "record-driver", PSoundChannel::Recorder, true)
++        )
+       return FALSE;
+-    if (!SetSoundDevice(args, "sound", PSoundChannel::Player))
+-      return FALSE;
+-    if (!SetSoundDevice(args, "sound-in", PSoundChannel::Recorder))
+-      return FALSE;
+-    if (!SetSoundDevice(args, "sound-out", PSoundChannel::Player))
++    if (
++        !SetSoundDevice(args, "sound",    "play-driver",   PSoundChannel::Player) &&
++        !SetSoundDevice(args, "sound-out", "play-driver",  PSoundChannel::Player, true)
++        )
+       return FALSE;
+ 
+     if (verbose >= 3)
+@@ -1478,65 +1179,36 @@
+ #endif
+ 
+   if (canDoPCM) {
++    AddAllCapabilities(0, 0, "*");
++  }
+ 
+-    int g711Frames = 30;
+-    if (args.HasOption("g711frames")) {
+-      g711Frames = args.GetOptionString("g711frames").AsInteger();
+-      if (g711Frames <= 10 || g711Frames > 240) {
+-        cout << "error: G.711 frame size must be in range 10 to 240" << endl;
+-        g711Frames = 30;
+-      }
+-    }
+-
+-    int gsmFrames = 4;
+-    if (args.HasOption("gsmframes")) {
+-      gsmFrames = args.GetOptionString("gsmframes").AsInteger();
+-      if (gsmFrames < 1 || gsmFrames > 7) {
+-        cout << "error: GSM frame size must be in range 1 to 7" << endl;
+-        gsmFrames = 4;
++#ifdef HAS_T38
++  SetCapability(0, 1, new H323_T38Capability(H323_T38Capability::e_UDP));
++#endif
++  // set frames per packet if requested by user
++  if (args.HasOption("fpp")) {
++    PStringArray lines = args.GetOptionString("fpp").Lines();
++    for (PINDEX i = 0; i < lines.GetSize(); i++) {
++      PStringArray tokens = lines[i].Tokenise('=');
++      if (tokens.GetSize() != 2) {
++        cerr << "error: --fpp option requires argument in the form 'codec=count'" << endl;
++        return FALSE;
+       }
++      PString fmt = tokens[0];
++      SetCodecFrames(tokens[0], tokens[1].AsInteger());
+     }
+-    if (verbose >= 3) {
+-      cout <<"G.711 frame size: " << g711Frames << endl;
+-      cout <<"GSM frame size: " << gsmFrames << endl;
+-    }
+-
+-    H323_GSM0610Capability * gsmCap;
+-    SetCapability(0, 0, gsmCap = new H323_GSM0610Capability);
+-    gsmCap->SetTxFramesInPacket(gsmFrames);
+-
+-    MicrosoftGSMAudioCapability * msGsmCap;
+-    SetCapability(0, 0, msGsmCap = new MicrosoftGSMAudioCapability);
+-    msGsmCap->SetTxFramesInPacket(gsmFrames);
+-
+-    H323_G711Capability * g711uCap;
+-    SetCapability(0, 0, g711uCap = new H323_G711Capability(H323_G711Capability::muLaw));
+-    g711uCap->SetTxFramesInPacket(g711Frames);
+-
+-    H323_G711Capability * g711aCap;
+-    SetCapability(0, 0, g711aCap = new H323_G711Capability(H323_G711Capability::ALaw));
+-    g711aCap->SetTxFramesInPacket(g711Frames);
+-
+-    SetCapability(0, 0, new H323_iLBC_Capability(*this, H323_iLBC_Capability::e_13k3));
+-    SetCapability(0, 0, new H323_iLBC_Capability(*this, H323_iLBC_Capability::e_15k2));
+-
+-    SetCapability(0, 0, new SpeexNarrow3AudioCapability());
+-    SetCapability(0, 0, new SpeexNarrow4AudioCapability());
+-    SetCapability(0, 0, new SpeexNarrow5AudioCapability());
+-    SetCapability(0, 0, new SpeexNarrow6AudioCapability());
+-    SetCapability(0, 0, new SpeexNarrow2AudioCapability());
+-
+-    SetCapability(0, 0, new H323_G726_Capability(*this, H323_G726_Capability::e_16k));
+-    SetCapability(0, 0, new H323_G726_Capability(*this, H323_G726_Capability::e_24k));
+-    SetCapability(0, 0, new H323_G726_Capability(*this, H323_G726_Capability::e_32k));
+-    SetCapability(0, 0, new H323_G726_Capability(*this, H323_G726_Capability::e_40k));
+-
+-    SetCapability(0, 0, new H323_LPC10Capability(*this));
+   }
+ 
++  // backwards compatible options
++  if (args.HasOption("gsmframes")) 
++    SetCodecFrames(OpalGSM0610, args.GetOptionString("gsmframes").AsInteger());
++  if (args.HasOption("g711frames"))  {
++    // note that G.711 "frames" are really 1/8 millisecond
++    int frames = 8 * args.GetOptionString("g711frames").AsInteger();
++    SetCodecFrames(OpalG711uLaw64k, frames);
++    SetCodecFrames(OpalG711ALaw64k, frames);
++  }
+ 
+-  //AddCapability puts the codec into the list of codecs we can send
+-  //SetCapability puts the codec into the list of codecs we can send and receive
+ #ifdef DEPRECATED_CU30
+   PFilePath  fileName= PProcess::Current().GetConfigurationFile();
+   PString statsDir = fileName.GetDirectory(); //Statistics files ("y" "u" "v" and "mc") have to be here.
+@@ -1554,7 +1226,10 @@
+ 
+ #endif
+ 
++  OpalMediaFormat::List mediaFormats = H323PluginCodecManager::GetMediaFormats();
++
+   //Make sure the CIF and QCIF capabilities are in the correct order
++
+ #define ADD_VIDEO_CAPAB(a)                                                       \
+   if (!videoReceiveDevice.IsEmpty()) {                                           \
+     if (videoSize == 1) {                                                         \
+@@ -1575,40 +1250,67 @@
+   }                                                                              \
+ 
+ #ifndef NO_H323_VIDEO
+-#if H323_AVCODEC
++
++#ifdef H323_AVCODEC
+   ADD_VIDEO_CAPAB (H323_FFH263Capability);
+ #endif
+-#if H323_VICH263
++
++#ifdef H323_VICH263
+   ADD_VIDEO_CAPAB (H323_H263Capability);
+ #endif
+ 
+-  if (!videoReceiveDevice.IsEmpty()) {
+-    if (videoSize == 1) {
+-      SetCapability(0, 1, new H323_H261Capability(0, 4, FALSE, FALSE, 6217));
+-      SetCapability(0, 1, new H323_H261Capability(2, 0, FALSE, FALSE, 6217));
+-    } else {
+-      SetCapability(0, 1, new H323_H261Capability(2, 0, FALSE, FALSE, 6217));
+-      SetCapability(0, 1, new H323_H261Capability(0, 4, FALSE, FALSE, 6217));
+-    }
+-  } else if (autoStartTransmitVideo) {
+-    if (videoSize == 1) {
+-      AddCapability(new H323_H261Capability(0, 4, FALSE, FALSE, 6217)); //CIF
+-      AddCapability(new H323_H261Capability(2, 0, FALSE, FALSE, 6217)); //QCIF
+-    } else { 
+-      AddCapability(new H323_H261Capability(2, 0, FALSE, FALSE, 6217)); //QCIF
+-      AddCapability(new H323_H261Capability(0, 4, FALSE, FALSE, 6217)); //CIF
+-    }
++#ifdef H323_RFC2190_AVCODEC
++  if (mediaFormats.GetValuesIndex(OpalMediaFormat("RFC2190 H.263")) != P_MAX_INDEX) {
++    int maxbps = videoBitRate/100;
++    if (!videoReceiveDevice.IsEmpty()) {                                           
++      if (videoSize == 1) {                                                         
++        SetCapability(0, 1, new  H323_RFC2190_H263Capability(0, 0, 2, 0, 0, maxbps)); 
++        SetCapability(0, 1, new  H323_RFC2190_H263Capability(0, 1, 0, 0, 0, maxbps));
++      } else {                                                                     
++        SetCapability(0, 1, new  H323_RFC2190_H263Capability(0, 1, 0, 0, 0, maxbps)); 
++        SetCapability(0, 1, new  H323_RFC2190_H263Capability(0, 0, 2, 0, 0, maxbps)); 
++      }                                                                            
++    } else if (autoStartTransmitVideo) {                                          
++      if (videoSize == 1) {                                                        
++        AddCapability(new  H323_RFC2190_H263Capability(0, 0, 2, 0, 0, maxbps));       
++        AddCapability(new  H323_RFC2190_H263Capability(0, 1, 0, 0, 0, maxbps));       
++      } else {                                                                     
++        AddCapability(new  H323_RFC2190_H263Capability(0, 1, 0, 0, 0, maxbps));       
++        AddCapability(new  H323_RFC2190_H263Capability(0, 0, 2, 0, 0, maxbps));       
++      }                                                                            
++    }                                                                              
+   }
+ #endif
+ 
++  if (mediaFormats.GetValuesIndex(OpalMediaFormat("H.261")) != P_MAX_INDEX) {
++    if (!videoReceiveDevice.IsEmpty()) {
++      if (videoSize == 1) {
++        SetCapability(0, 1, new H323_H261Capability(0, 4, FALSE, FALSE, 6217));
++        SetCapability(0, 1, new H323_H261Capability(2, 0, FALSE, FALSE, 6217));
++      } else {
++        SetCapability(0, 1, new H323_H261Capability(2, 0, FALSE, FALSE, 6217));
++        SetCapability(0, 1, new H323_H261Capability(0, 4, FALSE, FALSE, 6217));
++      }
++    } else if (autoStartTransmitVideo) {
++      if (videoSize == 1) {
++        AddCapability(new H323_H261Capability(0, 4, FALSE, FALSE, 6217)); //CIF
++        AddCapability(new H323_H261Capability(2, 0, FALSE, FALSE, 6217)); //QCIF
++      } else { 
++        AddCapability(new H323_H261Capability(2, 0, FALSE, FALSE, 6217)); //QCIF
++        AddCapability(new H323_H261Capability(0, 4, FALSE, FALSE, 6217)); //CIF
++      }
++    }
++  }
++#endif  // NO_H323_VIDEO
++
+   PStringArray toRemove = args.GetOptionString('D').Lines();
+   PStringArray toReorder = args.GetOptionString('P').Lines();
+ 
+   static const char * const oldArgName[] = {
+-    "g7231",   "g729",  "g728",  "gsm", "g711-ulaw", "g711-alaw",   "g.726", "speex", "ilbc"
++    "g7231",   "g729",  "g728",  "gsm", "g711-ulaw", "g711-alaw",   "g.726", "speex", "ilbc", "h261", "h263"
+   };
+   static const char * const capName[] = {
+-    "G.723.1", "G.729", "G.728", "GSM", "G.711-uLaw", "G.711-ALaw", "G.726", "Speex", "ilbc"
++    "G.723.1", "G.729", "G.728", "GSM", "G.711-uLaw", "G.711-ALaw", "G.726", "Speex", "ilbc", "H.261", "H.263"
+   };
+ 
+   for (i = 0; i < PARRAYSIZE(oldArgName); i++) {
+@@ -1746,6 +1448,15 @@
+     cout << "Enabling H.235 security access to gatekeeper." << endl;
+   }
+ 
++#ifdef H323_TRANSNEXUS_OSP
++  if (args.HasOption("osp")) {
++    PDirectory ospDir;
++    if (args.HasOption("ospdir"))
++      ospDir = args.GetOptionString("ospdir");
++    SetOSPProvider(args.GetOptionString("osp"), ospDir);
++  }
++  else
++#endif
+   if (args.HasOption('g')) {
+     PString gkName = args.GetOptionString('g');
+     H323TransportUDP * rasChannel;
+@@ -1789,6 +1500,10 @@
+     }
+   }
+ 
++  // osptoken option only makes sense if gatekeeper is being used
++  if ((gatekeeper != NULL) && args.HasOption("osptoken"))
++    SetGkAccessTokenOID(OpalOSP::ETSIXMLTokenOID);
++
+   ringThread = NULL;
+ 
+   if (!args.HasOption("autodisconnect"))
+@@ -1899,13 +1614,39 @@
+ 
+ 
+ BOOL MyH323EndPoint::SetSoundDevice(PConfigArgs & args,
+-                                    const char * optionName,
+-                                    PSoundChannel::Directions dir)
++                                    const char * deviceOptName,
++                                    const char * driverOptName,
++                                    PSoundChannel::Directions dir,
++                                    BOOL force)
+ {
+-  if (!args.HasOption(optionName))
+-    return TRUE;
++  if (!force && !args.HasOption(deviceOptName) && !args.HasOption(driverOptName))
++    return FALSE;
++
++  PStringList driverNames = PSoundChannel::GetDriverNames();
++
++  PString driverName = args.GetOptionString(driverOptName);
++  if (driverName.IsEmpty()) 
++    driverName = args.GetOptionString("sound-driver");
++  if (driverName.IsEmpty()) {
++    if (driverNames.IsEmpty())
++      return FALSE;
++    driverName = driverNames[0];
++  }
++  else if (driverNames.GetStringsIndex(driverName) == P_MAX_INDEX) {
++    cout << "Sound driver must be one of\n"
++         << setfill('\n') << driverNames << setfill(' ') 
++         << endl;
++    return false;
++  }
++
++  if (dir == PSoundChannel::Player)
++    SetSoundChannelPlayDriver(driverName);
++  else
++    SetSoundChannelRecordDriver(driverName);
+ 
+-  PString dev = args.GetOptionString(optionName);
++  PString dev = args.GetOptionString(deviceOptName);
++  if (dev.IsEmpty())
++    dev = PSoundChannel::GetDeviceNames(dir)[0];
+ 
+   if (dir == PSoundChannel::Player) {
+     if (SetSoundChannelPlayDevice(dev))
+@@ -1916,11 +1657,8 @@
+       return TRUE;
+   }
+ 
+-  cout << "Device for " << optionName << " (\"" << dev << "\") must be one of:\n";
+-
+-  PStringArray names = PSoundChannel::GetDeviceNames(dir);
+-  for (PINDEX i = 0; i < names.GetSize(); i++)
+-    cout << "  \"" << names[i] << "\"\n";
++  cout << "Argument to " << deviceOptName << " must be one of\n"
++       << setfill('\n') << PSoundChannel::GetDeviceNames(dir) << setfill(' ') << endl;
+ 
+   return FALSE;
+ }
+@@ -2022,34 +1760,8 @@
+ void MyH323EndPoint::TranslateTCPAddress(PIPSocket::Address &localAddr, const PIPSocket::Address &remoteAddr)
+ {
+ 
+-  if (this->behind_masq) {
+-    /* Check if the remote address is a private IP address.
+-     * RFC 1918 specifies the following private IP addresses
+-     * 10.0.0.0    - 10.255.255.255.255
+-     * 172.16.0.0  - 172.31.255.255
+-     * 192.168.0.0 - 192.168.255.255
+-     */
+-
+-     BOOL remote_address_private =
+-       ( ((remoteAddr.Byte1() == 10))
+-       ||((remoteAddr.Byte1() == 172) 
+-           && (remoteAddr.Byte2() >= 16)
+-           && (remoteAddr.Byte2() <= 31) )
+-       ||((remoteAddr.Byte1() == 192) 
+-           && (remoteAddr.Byte2() == 168))
+-       ||((remoteAddr.Byte1() == 127)
+-           && (remoteAddr.Byte2() == 0)
+-           && (remoteAddr.Byte3() == 0)
+-           && (remoteAddr.Byte4() == 1))  );
+-     /*
+-      * If the remote address is outside our LAN, replace the local address
+-      * with the IP address of the NAT box.
+-      */
+-     if (!remote_address_private) { 
+-       localAddr = *(this->masqAddressPtr);
+-     }
+-  }
+-  return;
++  if (this->behind_masq && !remoteAddr.IsRFC1918())
++    localAddr = *(this->masqAddressPtr);
+ }
+ 
+ BOOL MyH323EndPoint::OnConnectionForwarded(H323Connection & /*connection*/,
+@@ -2284,14 +1996,16 @@
+     for (int i = 0; i < drivers.GetSize(); i++) {
+       PStringList devices = PVideoInputDevice::GetDriversDeviceNames(drivers[i]);
+       for (int j = 0; j < devices.GetSize(); j++) {
+-	PTRACE(3, "H323ep\ttype:" << setw(10) << drivers[i] << "          device:" << setw(13) << devices[j] );
++	      PTRACE(3, "H323ep\ttype:" << setw(10) << drivers[i] << "          device:" << setw(13) << devices[j] );
+       }
+     }
+ 
+     grabber = PVideoInputDevice::CreateDeviceByName(videoDevice);
+ 
+     if (grabber == NULL) {
+-      PTRACE(3, "Cannot create video input device for driver " << videoDevice);
++      PTRACE(3, "Cannot create video input device for name " << videoDevice);
++      cerr << "Cannot create video input device for name " << videoDevice << endl
++        << "Available video device names are : " << setfill(',') << PVideoInputDevice::GetDriverNames() << setfill(' ')<< endl;
+       goto errVideo;
+     }
+ 
+@@ -2460,10 +2174,21 @@
+   MakeOutgoingCall(dest, gateway, defaultCallOptions);
+ }
+ 
+-void MyH323EndPoint::MakeOutgoingCall(const PString & dest,
++void MyH323EndPoint::MakeOutgoingCall(const PString & _dest,
+                                       const PString & gateway,
+                                       CallOptions callOptions)
+ {
++  PString dest = _dest;
++  if (!numberPrefix.IsEmpty()) {
++    // check to see if dest is all digits
++    PINDEX i;
++    for (i = 0; i < dest.GetLength(); ++i)
++      if (!isdigit(dest[i]))
++        break;
++    if (i == dest.GetLength())
++      dest = numberPrefix + dest;
++  }
++
+   currentCallOptions = callOptions;
+ 
+   PString fullAddress;
+@@ -2479,7 +2204,6 @@
+   if (!gateway)
+     fullAddress = dest.Trim() + '@' + fullAddress;
+ 
+-
+   if (!MakeCall(fullAddress, currentCallToken)) {
+     cout << "Error making call to \"" << fullAddress << '"' << endl;
+     return;
+@@ -2493,7 +2217,6 @@
+   PString indexStr = PString(PString::Unsigned, index);
+   config.SetString(indexStr,           fullAddress);
+   config.SetString(indexStr + "_Time", now.AsString());
+-  config.SetString("index",            indexStr);
+ 
+   cout << GetLocalUserName() << " is calling host " << fullAddress << endl;
+   uiState = uiConnectingCall;
+@@ -2612,7 +2335,7 @@
+           key = key.Mid(prefix.GetLength());
+         MakeOutgoingCall(key, str.Mid(1), callOptions);
+       } else
+-        MakeOutgoingCall(str, PString(), callOptions);
++        MakeOutgoingCall(str, proxy, callOptions);
+     } else {
+       PString host = str.Left(idx).Trim();
+       PString gw   = str.Mid(idx).Trim();
+@@ -3197,7 +2920,7 @@
+                 cout << "Cannot find audio channel" << endl;
+               else {
+                 H323Codec * rawCodec  = chan->GetCodec();
+-                if (!rawCodec->IsDescendant(H323AudioCodec::Class()))
++                if (!PIsDescendant(rawCodec, H323AudioCodec))
+                   cout << "Audio channel is not audio!" << endl;
+                 else {
+                   H323AudioCodec * codec = (H323AudioCodec *)rawCodec;
+@@ -3233,9 +2956,9 @@
+                    << "Duration         : " << setw(5) << setprecision(0) << (now - callStart) << " mins\n   "
+                    << "Round trip delay : " << connection->GetRoundTripDelay().GetMilliSeconds() << " msec"
+                    << endl;
+-	      ReportSessionStatistics(connection, RTP_Session::DefaultAudioSessionID);
+-	      ReportSessionStatistics(connection, RTP_Session::DefaultVideoSessionID);
+-	      connection->Unlock();
++	            ReportSessionStatistics(connection, RTP_Session::DefaultAudioSessionID);
++	            ReportSessionStatistics(connection, RTP_Session::DefaultVideoSessionID);
++	            connection->Unlock();
+             }
+           }
+ 	  console.ignore(INT_MAX, '\n');
+@@ -3428,7 +3151,7 @@
+                 cout << "Cannot find sending video channel" << endl;
+               else {
+                 H323Codec * rawCodec  = chan->GetCodec();
+-                if (!rawCodec->IsDescendant(H323VideoCodec::Class()))
++                if (!PIsDescendant(rawCodec, H323VideoCodec))
+                   cout << "Sending video codec is not video!" << endl;
+                 else {
+                   H323VideoCodec * codec = (H323VideoCodec *)rawCodec;
+@@ -3436,7 +3159,7 @@
+                   if (NULL == rawChan)
+                     cout << "Cannot find sending video channel" << endl;
+                   else {
+-                    if (!rawChan->IsDescendant(PVideoChannel::Class()))
++                    if (!PIsDescendant(rawChan, PVideoChannel))
+                       cout << "Sending video channel is not Class PVideoChannel!" << endl;
+                     else {
+                       PVideoChannel * videoChan = (PVideoChannel *)rawChan;
+@@ -3670,12 +3393,16 @@
+   RTP_DataFrame frame(2048);
+   unsigned length, written;
+ 
+-  if (cap->IsDescendant(H323_H261Capability::Class())) 
++  if (PIsDescendant(cap, H323_H261Capability)) 
+     frame.SetPayloadType(RTP_DataFrame::H261); 
+ #if H323_AVCODEC
+-  else if (cap->IsDescendant(H323_FFH263Capability::Class()))
++  else if (PIsDescendant(cap, H323_FFH263Capability))
+     frame.SetPayloadType(RTP_DataFrame::DynamicBase);
+ #endif
++#if H323_RFC2190_AVCODEC
++  else if (PIsDescendant(cap, H323_RFC2190_H263Capability))
++    frame.SetPayloadType(RTP_DataFrame::H263);
++#endif
+   frameCount = 0;
+   skipCount = 0;
+   PINDEX bitsEncoded = 0;
+@@ -3911,7 +3638,10 @@
+     endpoint.SetH221NonStandardInfo(setupPDU.m_h323_uu_pdu.m_nonStandardData.m_nonStandardIdentifier);
+     setupPDU.m_h323_uu_pdu.m_nonStandardData.m_data = myEndpoint.setupParameter;
+   }
+-  return TRUE;
++
++  //setupPDU.GetQ931().SetBearerCapabilities(Q931::TransferUnrestrictedDigital, 1, 0, 3);   // 88 93 a5
++
++  return H323Connection::OnSendSignalSetup(setupPDU);
+ }
+ 
+ 
+@@ -3972,7 +3702,7 @@
+ 
+   if (channel.GetDirection() == H323Channel::IsReceiver) {
+     int videoQuality = myEndpoint.videoQuality;
+-    if (channel.GetCodec()->IsDescendant(H323VideoCodec::Class()) && (videoQuality >= 0)) {
++    if (PIsDescendant(channel.GetCodec(), H323VideoCodec) && (videoQuality >= 0)) {
+ 
+       //const H323_H261Capability & h261Capability = (const H323_H261Capability &)channel.GetCapability();
+       //if (!h261Capability.GetTemporalSpatialTradeOffCapability())
+diff -Nur ohphone-1.13.5/main.h ohphone/main.h
+--- ohphone-1.13.5/main.h	2003-11-15 04:51:55.000000000 +0100
++++ ohphone/main.h	2005-01-11 08:56:45.000000000 +0100
+@@ -28,6 +28,22 @@
+  *                 Derek J Smithies (derek@indranet.co.nz)
+  *
+  * $Log$
++ * Revision 1.103  2005/01/11 07:56:45  csoutheren
++ * Added --number-prefix option
++ * Fixed problem with using proxies
++ *
++ * Revision 1.102  2004/11/22 02:57:53  csoutheren
++ * Rationalised sound device driver options (again)
++ *
++ * Revision 1.101  2004/11/04 22:20:28  csoutheren
++ * Fixed incorrect handling of sound drivers
++ *
++ * Revision 1.100  2004/06/02 00:27:28  csoutheren
++ * Added options to set frames per packet for any codec
++ *
++ * Revision 1.99  2004/05/02 20:00:33  ykiryanov
++ * Ifdef's creation of BeOS application if SDL flag is present. SDL has its own app
++ *
+  * Revision 1.98  2003/11/15 03:51:55  dereksmithies
+  * Add --soundtest option, which records audio, plays back 3 seconds later. Tests if the card is full duplex.
+  *
+@@ -369,22 +385,16 @@
+ class PSDLDisplayThread;
+ #endif
+ 
+-#ifdef __BEOS__
+-
++#if defined(__BEOS__) && !defined(P_SDL)
+ #ifndef _APPLICATION_H
+ #include <Application.h>
+ #endif
+-
+-
+ class OhPhoneApplication : public BApplication 
+ {
+   public:
+     OhPhoneApplication()
+       : BApplication("application/x-vnd.BeOhPhone") { }
+-};
+-
+-OhPhoneApplication OhPhoneApp;
+-
++} OhPhoneApp;
+ #endif
+ 
+ 
+@@ -479,14 +489,16 @@
+ 
+   protected:
+     // only used internally
+-    BOOL SetSoundDevice(PConfigArgs &, const char *, PSoundChannel::Directions);
++    BOOL SetSoundDevice(PConfigArgs &, const char *, const char *, PSoundChannel::Directions, BOOL force = false);
+     void AnswerCall(H323Connection::AnswerCallResponse response);
++    void SetCodecFrames(const PString & codec, unsigned frames);
+ 
+     void ReportSessionStatistics(H323Connection *connection, unsigned sessionID);
+ 
+     CallOptions defaultCallOptions;
+     CallOptions currentCallOptions;
+-
++    PString numberPrefix;
++    PString proxy;
+ 
+     int  verbose;
+     BOOL autoAnswer;
+diff -Nur ohphone-1.13.5/version.h ohphone/version.h
+--- ohphone-1.13.5/version.h	2003-08-28 05:46:55.000000000 +0200
++++ ohphone/version.h	2005-03-11 01:14:19.000000000 +0100
+@@ -27,10 +27,6 @@
+  * Contributor(s): ______________________________________.
+  *
+  *
+- * Library dependencies:
+- *
+- *   pwlib: v1.5.3   CVS tag:
+- *   openh323: v1.12.3   CVS tag:
+  */
+ 
+ #ifndef _OhPhone_VERSION_H
+@@ -39,7 +35,7 @@
+ #define MAJOR_VERSION 1
+ #define MINOR_VERSION 4
+ #define BUILD_TYPE    ReleaseCode
+-#define BUILD_NUMBER 3
++#define BUILD_NUMBER 5
+ 
+ 
+ #endif  // _OhPhone_VERSION_H
