@@ -30,12 +30,13 @@ H.323 endpoint application.
 PWLIBDIR=%{_prefix}; export PWLIBDIR
 OPENH323DIR=%{_prefix}; export OPENH323DIR
 %{__make} %{?debug:debugshared}%{!?debug:optshared} \
-		OPTCCFLAGS="%{!?debug:$RPM_OPT_FLAGS}"
+	OPTCCFLAGS="%{!?debug:$RPM_OPT_FLAGS}"
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_mandir}/man1}
-install obj_linux_x86_?/%{name} $RPM_BUILD_ROOT%{_bindir}
+
+install obj_*/%{name} $RPM_BUILD_ROOT%{_bindir}
 install %{name}.1 $RPM_BUILD_ROOT%{_mandir}/man1
 
 %clean
