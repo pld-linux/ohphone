@@ -3,9 +3,9 @@ Name:		ohphone
 Version:	1.1pl1
 Release:	1
 License:	MPL
-Group:		X11/Applications/Multimedia
-Group(de):	X11/Applikationen/Multimedia
-Group(pl):	X11/Aplikacje/Multimedia
+Group:		Applications/Communications
+Group(de):	Applikationen/Kommunikation
+Group(pl):	Aplikacje/Komunikacja
 Source0:	http://www.openh323.org/bin/%{name}_%{version}.tar.gz
 Patch0:		%{name}-mak_files.patch
 Patch1:		%{name}-novga.patch
@@ -13,8 +13,6 @@ URL:		http://www.openh323.org/
 BuildRequires:	openh323-devel
 BuildRequires:	XFree86-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
-%define		_prefix		/usr/X11R6
 
 %description 
 ohphone is a command line application that can be used to listen for
@@ -29,8 +27,8 @@ H.323 endpoint application.
 %patch1 -p1
 
 %build
-PWLIBDIR=/usr; export PWLIBDIR
-OPENH323DIR=/usr; export OPENH323DIR
+PWLIBDIR=%{_prefix}; export PWLIBDIR
+OPENH323DIR=%{_prefix}; export OPENH323DIR
 %{__make} %{?debug:debugshared}%{!?debug:optshared} \
 		OPTCCFLAGS="%{!?debug:$RPM_OPT_FLAGS}"
 
