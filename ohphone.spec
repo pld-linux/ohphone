@@ -2,7 +2,7 @@ Summary:	initiate, or receive, a H.323 IP telephony call
 Name:		ohphone
 Version:	1.1pl1
 Release:	1
-License:	GPL
+License:	MPL
 Group:		X11/Applications/Multimedia
 Group(de):	X11/Applikationen/Multimedia
 Group(pl):	X11/Aplikacje/Multimedia
