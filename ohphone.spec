@@ -3,7 +3,7 @@ Summary(pl):	Inicjowanie i odbieranie po³±czeñ telefonicznych H.323
 Name:		ohphone
 Version:	1.13.4
 %define fver	%(echo %{version} | tr . _)
-Release:	1
+Release:	2
 License:	MPL 1.0
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/openh323/%{name}-v%{fver}-src.tar.gz
@@ -39,7 +39,8 @@ pe³nej funkcjonalno¶ci.
 
 %build
 %{__make} %{?debug:debugshared}%{!?debug:optshared} \
-	OPTCCFLAGS="%{rpmcflags} -fno-rtti -fno-exceptions"
+	OPTCCFLAGS="%{rpmcflags} -fno-rtti -fno-exceptions" \
+	XLIBDIR="/usr/X11R6/%{_lib}"
 
 %install
 rm -rf $RPM_BUILD_ROOT
