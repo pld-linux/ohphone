@@ -37,7 +37,7 @@ pe³nej funkcjonalno¶ci.
 PWLIBDIR=%{_prefix}; export PWLIBDIR
 OPENH323DIR=%{_prefix}; export OPENH323DIR
 %{__make} %{?debug:debugshared}%{!?debug:optshared} \
-	OPTCCFLAGS="%{!?debug:$RPM_OPT_FLAGS}"
+	OPTCCFLAGS="%{!?debug:$RPM_OPT_FLAGS}  -fno-rtti -fno-exceptions"
 
 %install
 rm -rf $RPM_BUILD_ROOT
