@@ -1,19 +1,19 @@
---- ohphone/Makefile.orig	Tue Aug 21 13:49:45 2001
-+++ ohphone/Makefile	Tue Aug 21 13:52:18 2001
-@@ -136,14 +136,6 @@
- include $(OPENH323DIR)/share/misc/openh323u.mak
- 
+--- ohphone/Makefile.orig	Tue Jul  9 18:18:33 2002
++++ ohphone/Makefile	Tue Jul  9 18:20:22 2002
+@@ -152,11 +152,11 @@
  #
--# only include svgalib support if available on this sytem
--#
--ifneq (,$(wildcard /usr/include/vga.h))
+ # only include svgalib support if available on this sytem
+ #
+-ifneq (,$(wildcard $(SYSINCDIR)/vga.h))
 -LDLIBS		+= -lvga
 -STDCCFLAGS	+= -DHAS_VGALIB
 -endif
 -
--#
++#ifneq (,$(wildcard $(SYSINCDIR)/vga.h))
++#LDLIBS		+= -lvga
++#STDCCFLAGS	+= -DHAS_VGALIB
++#endif
++#
+ #
  # only include X Windows support if available on this sytem
  #
- ifneq (,$(wildcard /usr/X11R6/include/X11/X.h))
- 
- 
