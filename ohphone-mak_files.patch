@@ -1,12 +1,15 @@
-diff -uNr ohphone.orig/Makefile ohphone/Makefile
---- ohphone.orig/Makefile	Mon Oct 28 11:36:15 2002
-+++ ohphone/Makefile	Mon Oct 28 11:36:48 2002
-@@ -147,7 +147,7 @@
- OPENH323DIR=$(HOME)/openh323
+--- ohphone/Makefile.orig	2003-07-13 18:32:31.000000000 +0200
++++ ohphone/Makefile	2003-07-13 18:33:21.000000000 +0200
+@@ -151,10 +151,10 @@
+ SOURCES		:= main.cxx vidlinux.cxx xlibvid.cxx sdlvid.cxx
+ 
+ ifndef OPENH323DIR
+-OPENH323DIR=$(HOME)/openh323
++OPENH323DIR=/usr
  endif
  
 -include $(OPENH323DIR)/openh323u.mak
-+include $(OPENH323DIR)/share/misc/openh323u.mak
++include /usr/share/openh323/openh323u.mak
  
  #
  # only include svgalib support if available on this sytem

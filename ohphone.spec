@@ -2,17 +2,19 @@ Summary:	Initiate, or receive, a H.323 IP telephony call
 Summary(pl):	Inicjowanie i odbieranie po³±czeñ telefonicznych H.323
 Name:		ohphone
 Version:	1.3.7
-Release:	1
+Release:	1.1
 License:	MPL 1.0
 Group:		Applications/Communications
 Source0:	http://www.openh323.org/bin/%{name}_%{version}.tar.gz
 # Source0-md5:	eba2fe0f7eb2d68d57a89b65e3736042
 Patch0:		%{name}-mak_files.patch
 Patch1:		%{name}-novga.patch
+Patch2:		%{name}-update.patch
 URL:		http://www.openh323.org/
+BuildRequires:	SDL-devel
 BuildRequires:	XFree86-devel
-BuildRequires:	openh323-devel >= 1.11.7
-BuildRequires:	pwlib-devel >= 1.4.11
+BuildRequires:	openh323-devel >= 1.12.0
+BuildRequires:	pwlib-devel >= 1.5.0
 %requires_eq	openh323
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -34,10 +36,9 @@ pe³nej funkcjonalno¶ci.
 %setup -qn %{name}
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
-PWLIBDIR=%{_prefix}; export PWLIBDIR
-OPENH323DIR=%{_prefix}; export OPENH323DIR
 %{__make} %{?debug:debugshared}%{!?debug:optshared} \
 	OPTCCFLAGS="%{rpmcflags} -fno-rtti -fno-exceptions"
 
