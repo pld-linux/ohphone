@@ -1,6 +1,6 @@
 Summary:	initiate, or receive, a H.323 IP telephony call
 Name:		ohphone
-Version:	1.1pl1
+Version:	1.1.5
 Release:	1
 License:	MPL
 Group:		Applications/Communications
