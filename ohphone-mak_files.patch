@@ -1,14 +1,7 @@
-diff -durN ohphone.orig/Makefile ohphone/Makefile
---- ohphone.orig/Makefile	Mon Aug 21 08:01:36 2000
-+++ ohphone/Makefile	Sat Jan  6 12:18:48 2001
-@@ -109,13 +109,13 @@
- PWLIBDIR=$(HOME)/pwlib
- endif
- 
--include $(PWLIBDIR)/make/ptlib.mak
-+include $(PWLIBDIR)/share/pwlib/ptlib.mak
- 
- ifndef OPENH323DIR
+diff -uNr ohphone.orig/Makefile ohphone/Makefile
+--- ohphone.orig/Makefile	Mon Oct 28 11:36:15 2002
++++ ohphone/Makefile	Mon Oct 28 11:36:48 2002
+@@ -147,7 +147,7 @@
  OPENH323DIR=$(HOME)/openh323
  endif
  
