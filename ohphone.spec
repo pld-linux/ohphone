@@ -1,4 +1,5 @@
 Summary:	initiate, or receive, a H.323 IP telephony call
+Summary(pl):	Inicjowanie i odbieranie po³±czeñ telefonicznych H.323
 Name:		ohphone
 Version:	1.1.5
 Release:	1
@@ -18,8 +19,15 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 ohphone is a command line application that can be used to listen for
 incoming H.323 calls, or to initiate a call to a remote host. Although
 originally intended as a test harneess for the OpenH323 project (see
-http://www.openh323.org) it has developed into a fully functional
+http://www.openh323.org/) it has developed into a fully functional
 H.323 endpoint application.
+
+%description -l pl
+ohphone to dzia³aj±ca z linii poleceñ aplikacja, która mo¿e czekaæ na
+nadchodz±ce po³±czenia H.323 lub inicjowaæ po³±czenia z innym
+komputerem. Oryginalnie mia³o to byæ narzêdzie testowe dla projektu
+OpenH323 (http://www.openh323.org/), ale zosta³o doprowadzone do
+pe³nej funkcjonalno¶ci.
 
 %prep
 %setup -qn %{name}
