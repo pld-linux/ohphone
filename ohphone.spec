@@ -2,14 +2,14 @@ Summary:	initiate, or receive, a H.323 IP telephony call
 Summary(pl):	Inicjowanie i odbieranie po³±czeñ telefonicznych H.323
 Name:		ohphone
 Version:	1.3.3
-Release:	1
+Release:	2
 License:	MPL
 Group:		Applications/Communications
 Source0:	http://www.openh323.org/bin/%{name}_%{version}.tar.gz
 Patch0:		%{name}-mak_files.patch
 Patch1:		%{name}-novga.patch
 URL:		http://www.openh323.org/
-BuildRequires:	openh323-devel >= 1.10.0
+BuildRequires:	openh323-devel >= 1.10.4
 BuildRequires:	XFree86-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %requires_eq	openh323
