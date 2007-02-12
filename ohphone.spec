@@ -1,5 +1,5 @@
 Summary:	Initiate, or receive, a H.323 IP telephony call
-Summary(pl):	Inicjowanie i odbieranie po³±czeñ telefonicznych H.323
+Summary(pl.UTF-8):   Inicjowanie i odbieranie poÅ‚Ä…czeÅ„ telefonicznych H.323
 Name:		ohphone
 Version:	1.13.5
 %define fver	%(echo %{version} | tr . _)
@@ -26,12 +26,12 @@ originally intended as a test harneess for the OpenH323 project (see
 http://www.openh323.org/) it has developed into a fully functional
 H.323 endpoint application.
 
-%description -l pl
-ohphone to dzia³aj±ca z linii poleceñ aplikacja, która mo¿e czekaæ na
-nadchodz±ce po³±czenia H.323 lub inicjowaæ po³±czenia z innym
-komputerem. Oryginalnie mia³o to byæ narzêdzie testowe dla projektu
-OpenH323 (http://www.openh323.org/), ale zosta³o doprowadzone do
-pe³nej funkcjonalno¶ci.
+%description -l pl.UTF-8
+ohphone to dziaÅ‚ajÄ…ca z linii poleceÅ„ aplikacja, ktÃ³ra moÅ¼e czekaÄ‡ na
+nadchodzÄ…ce poÅ‚Ä…czenia H.323 lub inicjowaÄ‡ poÅ‚Ä…czenia z innym
+komputerem. Oryginalnie miaÅ‚o to byÄ‡ narzÄ™dzie testowe dla projektu
+OpenH323 (http://www.openh323.org/), ale zostaÅ‚o doprowadzone do
+peÅ‚nej funkcjonalnoÅ›ci.
 
 %prep
 %setup -qn %{name}
