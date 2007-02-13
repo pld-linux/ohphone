@@ -1,5 +1,5 @@
 Summary:	Initiate, or receive, a H.323 IP telephony call
-Summary(pl.UTF-8):   Inicjowanie i odbieranie połączeń telefonicznych H.323
+Summary(pl.UTF-8):	Inicjowanie i odbieranie połączeń telefonicznych H.323
 Name:		ohphone
 Version:	1.13.5
 %define fver	%(echo %{version} | tr . _)
